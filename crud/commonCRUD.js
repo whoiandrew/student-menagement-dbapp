@@ -1,11 +1,9 @@
-const findByAuthor = (collectionModel, author) => {
+const findByParam = (collectionModel, param) => {
   return new Promise((res, rej) => {
     collectionModel
-      .find({ author })
-
+      .find(param)
       .then((data) => {
         if (data) {
-          console.log(data);
           res(data);
         } else {
           throw new Error("nothing has found");
@@ -18,26 +16,28 @@ const findByAuthor = (collectionModel, author) => {
 };
 
 const createOne = (collectionModel, newDocument) => {
-  console.log(newDocument);
   return new Promise((res, rej) => {
     collectionModel.create(newDocument, (err, doc) => {
-      console.log(doc);
       err ? rej(err) : res({ success: true, doc });
     });
+  });
+};
+
+const updateOneById = (collectionModel, id, newData) => {
+  return new Promise((res, rej) => {
+    collectionModel
+      .updateOne({ _id: id }, { $set: newData })
+      .then(res({ success: true }))
+      .catch((err) => rej(err));
   });
 };
 
 const removeOneById = (collectionModel, id) => {
   return new Promise((res, rej) => {
     collectionModel.findByIdAndRemove(id, (err, doc) => {
-      if (err) {
-        rej({ err });
-      } else {
-        console.log(`removed: ${doc}`);
-        res(doc);
-      }
+      err ? rej(err) : res({ success: true, doc });
     });
   });
 };
 
-module.exports = { findByAuthor, createOne, removeOneById };
+module.exports = { findByParam, createOne, removeOneById, updateOneById };

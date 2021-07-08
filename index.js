@@ -1,22 +1,22 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const 
 
 const {
-  findByAuthor,
+  findByParam,
   createOne,
   removeOneById,
+  updateOneById,
 } = require("./crud/commonCRUD.js");
 
 const PORT = "8081";
-const MONGODB_URI =
-  "mongodb+srv://whoiandrew:iANDREY09042000@cluster0.psryz.mongodb.net/ssystem?retryWrites=true&w=majority";
+const MONGODB_URI = process.env.MONGODB_URI
 
 const app = express();
 
 app.use(express.json());
 
 const Schema = mongoose.Schema;
-const ObjectId = Schema.ObjectId;
 
 const userSchema = new Schema(
   {
@@ -34,7 +34,7 @@ const workSchema = new Schema(
     title: String,
     size: Number,
     isChecked: Boolean,
-    points: Number,
+    points: String,
     author: String,
     lesson: String,
     uploadTime: Date,
@@ -155,7 +155,7 @@ app.post("/getUser/:id", (req, res) => {
 
 app.post("/getNotes/:author", (req, res) => {
   const author = req.params.author;
-  findByAuthor(noteModel, author).then((data) => {
+  findByParam(noteModel, { author }).then((data) => {
     res.json(data);
   });
 });
@@ -170,8 +170,29 @@ app.post("/removeNote/:id", (req, res) => {
 
 app.post("/addNote", (req, res) => {
   const body = req.body;
-  console.log(body);
   createOne(noteModel, body)
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((e) => {
+      res.json(e);
+    });
+});
+
+app.post("/getLessonWorks", (req, res) => {
+  const { lessonName } = req.body;
+  findByParam(workModel, { lesson: lessonName })
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((e) => {
+      res.json(e);
+    });
+});
+
+app.post("/updateRate", (req, res) => {
+  const { id, rate } = req.body;
+  updateOneById(workModel, id, { points: rate, isChecked: true })
     .then((data) => {
       res.json(data);
     })
